@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🫀 Hepatic System — NCLEX Study Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: #0a0e1a; font-family: Georgia, 'Times New Roman', serif; color: #e8dcc8; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* HEADER */
+  #header {
+    background: linear-gradient(135deg, #1a0a0a 0%, #2d0f0f 50%, #1a1a2e 100%);
+    border-bottom: 2px solid #8b1a1a;
+    padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  #header .subtitle { font-size: 11px; letter-spacing: 6px; color: #8b1a1a; text-transform: uppercase; margin-bottom: 4px; }
+  #header h1 { font-size: 30px; font-weight: 700; color: #f5c842; letter-spacing: 2px; }
+  #header .desc { font-size: 13px; color: #a09070; margin-top: 4px; }
+  .tab-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 10px 18px; border: none; border-radius: 6px;
+    font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(255,255,255,0.05); color: #a09070;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .tab-btn.active { background: #8b1a1a; color: #f5c842; border-bottom: 2px solid #f5c842; }
+
+  /* PANELS */
+  .panel { display: none; padding: 28px; max-width: 1200px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* CONCEPT MAP */
+  .map-center {
+    text-align: center; margin-bottom: 28px;
+  }
+  .map-center-box {
+    display: inline-block; padding: 18px 36px;
+    background: radial-gradient(circle, #8b1a1a, #5c0a0a);
+    border-radius: 12px; border: 2px solid #f5c842;
+    box-shadow: 0 0 40px rgba(139,26,26,0.5);
+  }
+  .map-center-box .title { font-size: 26px; font-weight: 700; color: #f5c842; letter-spacing: 3px; }
+  .map-center-box .hint { font-size: 11px; color: #e8c88a; letter-spacing: 2px; margin-top: 4px; }
+  .branches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .branch-card {
+    border-radius: 10px; padding: 18px; cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-left-width: 4px; transition: all 0.3s;
+  }
+  .branch-header { display: flex; align-items: center; justify-content: space-between; }
+  .branch-header .left { display: flex; align-items: center; gap: 10px; }
+  .branch-icon { font-size: 20px; }
+  .branch-label { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+  .branch-arrow { font-size: 16px; }
+  .branch-items { margin-top: 14px; list-style: none; }
+  .branch-items li {
+    padding: 7px 0; font-size: 12.5px; color: #d4c4a0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .branch-items li:last-child { border-bottom: none; }
+  .branch-items li .dot { margin-top: 2px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 28px; }
+  .stat-card {
+    background: rgba(255,255,255,0.03); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .stat-val { font-size: 20px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: #a09070; letter-spacing: 1px; margin-top: 4px; }
+
+  /* QUIZ */
+  #quiz-panel { max-width: 780px; }
+  .quiz-start { text-align: center; }
+  .quiz-start h2 { color: #f5c842; font-size: 22px; margin-bottom: 8px; }
+  .quiz-start p { color: #a09070; margin-bottom: 22px; }
+  .cat-filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 22px; }
+  .cat-btn {
+    padding: 7px 15px; border-radius: 20px; border: none;
+    font-size: 12px; transition: all 0.2s; color: #a09070;
+    background: rgba(255,255,255,0.07);
+  }
+  .cat-btn.active { color: #fff; }
+  .start-btn {
+    padding: 14px 44px;
+    background: linear-gradient(135deg, #8b1a1a, #c0392b);
+    border: none; border-radius: 8px; color: #f5c842;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+  }
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .q-num { font-size: 12px; color: #a09070; }
+  .q-cat-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 22px; }
+  .progress-fill { height: 100%; background: #f5c842; border-radius: 2px; transition: width 0.3s; }
+  .q-box {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 22px; margin-bottom: 18px;
+  }
+  .q-text { font-size: 15px; line-height: 1.75; color: #e8dcc8; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 13px 16px; text-align: left;
+    color: #d4c4a0; font-size: 13.5px; line-height: 1.5; transition: all 0.2s;
+  }
+  .opt-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+  .opt-btn.correct { background: rgba(39,174,96,0.2) !important; border-color: #27ae60 !important; color: #7dcea0 !important; }
+  .opt-btn.wrong { background: rgba(192,57,43,0.2) !important; border-color: #c0392b !important; color: #e57373 !important; }
+  .rationale-box {
+    margin-top: 18px; padding: 18px;
+    background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 10px;
+  }
+  .rationale-label { font-size: 11px; color: #f5c842; letter-spacing: 2px; margin-bottom: 8px; }
+  .rationale-text { color: #e8d8a0; font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; }
+  .next-btn {
+    padding: 10px 26px; border: none; border-radius: 6px;
+    color: #fff; font-size: 13px; letter-spacing: 1px;
+  }
+  /* Results */
+  .results { text-align: center; }
+  .results .trophy { font-size: 52px; margin-bottom: 14px; }
+  .results h2 { color: #f5c842; font-size: 26px; margin-bottom: 8px; }
+  .results .big-score { font-size: 48px; font-weight: 700; margin-bottom: 6px; }
+  .results .pct { font-size: 18px; color: #a09070; margin-bottom: 6px; }
+  .results .feedback { font-size: 14px; margin-bottom: 28px; }
+  .result-btns { display: flex; gap: 12px; justify-content: center; margin-bottom: 32px; }
+  .result-btn {
+    padding: 12px 26px; border-radius: 8px; font-size: 14px;
+    border: none;
+  }
+  .missed-section h3 { color: #e57373; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }
+  .missed-item {
+    background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 8px; padding: 16px; margin-bottom: 12px; text-align: left;
+  }
+  .missed-q { font-size: 13px; color: #e8d8a0; margin-bottom: 10px; line-height: 1.6; }
+  .missed-yours { font-size: 12px; color: #e57373; margin-bottom: 5px; }
+  .missed-correct { font-size: 12px; color: #7dcea0; margin-bottom: 8px; }
+  .missed-rat { font-size: 12px; color: #c8b890; font-style: italic; line-height: 1.6; }
+
+  /* DRUG REFERENCE */
+  .drugs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .drug-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid #8b1a1a; border-radius: 10px; padding: 18px;
+  }
+  .drug-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .drug-name { font-size: 15px; font-weight: 700; color: #f5c842; }
+  .drug-class { font-size: 11px; color: #8b1a1a; letter-spacing: 1px; margin-top: 2px; }
+  .drug-use-badge {
+    background: rgba(139,26,26,0.3); padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; color: #e8a0a0; text-align: right; max-width: 160px; line-height: 1.4;
+  }
+  .drug-moa { font-size: 12px; color: #a09070; margin-bottom: 8px; line-height: 1.6; }
+  .drug-moa span { color: #8b9bb4; }
+  .drug-nursing { font-size: 12px; color: #a0c0a0; margin-bottom: 8px; line-height: 1.6; }
+  .drug-nursing span { color: #7db87d; }
+  .drug-alert {
+    font-size: 11px; color: #e8a060; background: rgba(232,160,96,0.1);
+    border-radius: 6px; padding: 6px 10px; line-height: 1.5;
+  }
+  .ref-title { color: #f5c842; font-size: 20px; margin-bottom: 22px; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <div class="subtitle">NCLEX Master Series</div>
+    <h1>🫀 Hepatic System</h1>
+    <div class="desc">Concept Map · 50 NCLEX Questions · Pharmacology Reference</div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('map')">📊 Concept Map</button>
+    <button class="tab-btn" onclick="showTab('quiz')">📝 NCLEX Quiz</button>
+    <button class="tab-btn" onclick="showTab('drugs')">💊 Drug Reference</button>
+  </div>
+</div>
+
+<!-- CONCEPT MAP -->
+<div id="map-panel" class="panel active">
+  <div class="map-center">
+    <div class="map-center-box">
+      <div class="title">🫀 LIVER</div>
+      <div class="hint">Click a branch to expand</div>
+    </div>
+  </div>
+  <div class="branches-grid" id="branches"></div>
+  <div class="stats-grid">
+    <div class="stat-card" style="border:1px solid #e74c3c44"><div class="stat-val" style="color:#e74c3c">5 (A–E)</div><div class="stat-label">Hepatitis Types</div></div>
+    <div class="stat-card" style="border:1px solid #3498db44"><div class="stat-val" style="color:#3498db">10+ Tests</div><div class="stat-label">Key Lab Panels</div></div>
+    <div class="stat-card" style="border:1px solid #27ae6044"><div class="stat-val" style="color:#27ae60">Critical</div><div class="stat-label">Nursing Actions</div></div>
+    <div class="stat-card" style="border:1px solid #f5c84244"><div class="stat-val" style="color:#f5c842">50 Total</div><div class="stat-label">NCLEX Questions</div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-panel" class="panel">
+  <div id="quiz-start-screen" class="quiz-start">
+    <h2>NCLEX-Style Practice Quiz</h2>
+    <p>50 questions covering all hepatic topics</p>
+    <div class="cat-filters" id="cat-filters"></div>
+    <button class="start-btn" onclick="startQuiz()">START QUIZ (<span id="q-count">50</span> Questions)</button>
+  </div>
+  <div id="quiz-question-screen" style="display:none">
+    <div class="q-meta">
+      <div class="q-num" id="q-num-label"></div>
+      <div class="q-cat-badge" id="q-cat-badge"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="q-box"><div class="q-text" id="q-text"></div></div>
+    <div class="options" id="options"></div>
+    <div class="rationale-box" id="rationale-box" style="display:none">
+      <div class="rationale-label">RATIONALE</div>
+      <div class="rationale-text" id="rationale-text"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">Next Question →</button>
+    </div>
+  </div>
+  <div id="quiz-results-screen" style="display:none" class="results">
+    <div class="trophy" id="trophy"></div>
+    <h2>Quiz Complete!</h2>
+    <div class="big-score" id="big-score"></div>
+    <div class="pct" id="pct-score"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="result-btns">
+      <button class="result-btn" style="background:#8b1a1a;color:#f5c842" onclick="startQuiz()">Retake Quiz</button>
+      <button class="result-btn" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);color:#e8dcc8" onclick="backToStart()">Change Category</button>
+    </div>
+    <div class="missed-section" id="missed-section"></div>
+  </div>
+</div>
+
+<!-- DRUG REFERENCE -->
+<div id="drugs-panel" class="panel">
+  <div class="ref-title">💊 Hepatic Drug Reference</div>
+  <div class="drugs-grid" id="drugs-grid"></div>
+</div>
+
+<script>
+const branches = [
+  { id:"anatomy", label:"Anatomy & Physiology", color:"#c0392b", icon:"🔬",
+    items:["Largest internal organ (1.5 kg)","Right & left lobes","Dual blood supply: Portal vein (75%) + Hepatic artery (25%)","Kupffer cells (macrophages)","Hepatocytes: metabolic workhorses","Bile canaliculi → bile ducts → CBD","Zones 1–3 (periportal to centrilobular)"] },
+  { id:"functions", label:"Key Functions", color:"#8e44ad", icon:"⚙️",
+    items:["Bile production & secretion","Protein synthesis (albumin, clotting factors)","Glucose metabolism & glycogen storage","Lipid metabolism","Drug & toxin detoxification","Bilirubin conjugation","Vitamin storage (A, D, E, K, B12)","Iron storage & recycling","Hormone inactivation"] },
+  { id:"disorders", label:"Liver Disorders", color:"#e67e22", icon:"⚠️",
+    items:["Hepatitis A, B, C, D, E","Cirrhosis (end-stage fibrosis)","Hepatocellular carcinoma","NAFLD / NASH","Alcoholic liver disease","Cholestasis","Hepatic encephalopathy","Portal hypertension","Liver abscess"] },
+  { id:"complications", label:"Cirrhosis Complications", color:"#27ae60", icon:"🚨",
+    items:["Ascites (fluid in peritoneum)","Esophageal varices → hemorrhage","Hepatic encephalopathy","Hepatorenal syndrome","Spontaneous bacterial peritonitis","Coagulopathy (↓ clotting factors)","Hypoalbuminemia → edema","Thrombocytopenia (splenomegaly)","Hepatopulmonary syndrome"] },
+  { id:"labs", label:"Labs & Diagnostics", color:"#2980b9", icon:"🧪",
+    items:["AST / ALT (hepatocellular damage)","ALP / GGT (cholestatic)","Total & direct bilirubin","Albumin (synthetic function)","PT/INR (coagulation)","Ammonia (encephalopathy)","CBC (anemia, thrombocytopenia)","Hepatitis serology panels","AFP (tumor marker)","Ultrasound, CT, MRI, Biopsy"] },
+  { id:"nursing", label:"Nursing Management", color:"#16a085", icon:"👩‍⚕️",
+    items:["Low-sodium diet (ascites)","Lactulose for encephalopathy","Daily weights & abdominal girth","Bleeding precautions","Fall precautions (confusion)","Paracentesis pre/post care","TIPS procedure monitoring","Avoid hepatotoxic drugs/NSAIDs","Alcohol cessation counseling","Transplant evaluation criteria"] },
+  { id:"hepatitis", label:"Hepatitis Specifics", color:"#d35400", icon:"🦠",
+    items:["Hep A: fecal-oral, self-limiting","Hep B: blood/sexual, chronic risk","Hep C: blood-borne, leading transplant cause","Hep D: only with Hep B (superinfection)","Hep E: fecal-oral, dangerous in pregnancy","HBsAg = active infection","Anti-HBs = immunity","HBeAg = high infectivity","Standard precautions for all","Vaccines: HAV, HBV available"] },
+  { id:"meds", label:"Pharmacology", color:"#7f8c8d", icon:"💊",
+    items:["Lactulose → ↓ ammonia (encephalopathy)","Rifaximin → gut bacteria suppression","Spironolactone → ascites diuresis","Furosemide → fluid management","Propranolol → variceal prophylaxis","Octreotide → acute variceal bleed","Neomycin → ↓ ammonia (alt)","Direct-acting antivirals (Hep C)","Tenofovir/Entecavir (Hep B)","Vitamin K → coagulopathy"] }
+];
+
+const questions = [
+  {id:1,category:"Hepatitis",q:"A client is diagnosed with Hepatitis A. Which statement by the client indicates understanding of transmission?",options:["A) 'I got it from unprotected sex with my partner'","B) 'I must have eaten contaminated shellfish'","C) 'I shared needles with someone'","D) 'I received a blood transfusion last year'"],answer:1,rationale:"Hepatitis A is transmitted via the fecal-oral route — contaminated food/water (especially shellfish). It is NOT bloodborne or sexually transmitted (primarily)."},
+  {id:2,category:"Labs",q:"Which lab value is MOST indicative of hepatocellular damage?",options:["A) Elevated alkaline phosphatase (ALP)","B) Elevated ALT and AST","C) Elevated bilirubin only","D) Decreased albumin"],answer:1,rationale:"ALT and AST are transaminases released from damaged hepatocytes. ALT is most liver-specific. ALP/GGT indicate cholestasis; albumin reflects synthetic function."},
+  {id:3,category:"Cirrhosis",q:"A client with cirrhosis develops confusion and asterixis. Which intervention is the PRIORITY?",options:["A) Administer lactulose as prescribed","B) Restrict all protein intake","C) Insert a Foley catheter","D) Prepare for liver biopsy"],answer:0,rationale:"Asterixis (flapping tremor) + confusion = hepatic encephalopathy from elevated ammonia. Lactulose acidifies the colon and traps NH3, promoting excretion. This is priority treatment."},
+  {id:4,category:"Nursing",q:"The nurse is caring for a client with cirrhosis and ascites. Which assessment finding requires IMMEDIATE action?",options:["A) Abdominal girth of 42 inches","B) Serum albumin 2.8 g/dL","C) Temperature 38.9°C and abdominal tenderness","D) Ankle edema 2+"],answer:2,rationale:"Fever + abdominal tenderness in a patient with ascites = Spontaneous Bacterial Peritonitis (SBP), a life-threatening emergency requiring immediate antibiotics and paracentesis."},
+  {id:5,category:"Pharmacology",q:"Lactulose is ordered for a patient with hepatic encephalopathy. Which outcome indicates the medication is effective?",options:["A) Serum potassium returns to normal","B) Patient has 2-3 soft stools per day","C) Patient's PT/INR decreases","D) Serum bilirubin decreases"],answer:1,rationale:"Lactulose works by promoting 2-3 soft stools/day, which removes ammonia from the GI tract. The goal is to decrease serum ammonia and improve mental status."},
+  {id:6,category:"Hepatitis",q:"A nurse is reviewing serologic markers for Hepatitis B. Which finding indicates the client has IMMUNITY from prior vaccination?",options:["A) HBsAg positive","B) Anti-HBc positive","C) Anti-HBs positive","D) HBeAg positive"],answer:2,rationale:"Anti-HBs (surface antibody) positive = immunity, either from vaccination or recovery. HBsAg = active infection. HBeAg = high replication/infectivity. Anti-HBc = prior exposure."},
+  {id:7,category:"Complications",q:"A patient with cirrhosis suddenly vomits bright red blood. What is the nurse's FIRST action?",options:["A) Insert an NG tube","B) Administer octreotide IV","C) Ensure a patent airway","D) Draw blood for type and crossmatch"],answer:2,rationale:"Always ABCs first. Airway is priority — massive GI bleeding risks aspiration. After securing the airway, interventions like octreotide, IV access, and blood typing follow."},
+  {id:8,category:"Labs",q:"Which of the following lab findings is MOST consistent with cirrhosis?",options:["A) Elevated albumin, decreased PT","B) Decreased albumin, elevated PT/INR","C) Elevated albumin, elevated PT/INR","D) Normal albumin, decreased platelets only"],answer:1,rationale:"In cirrhosis, impaired synthetic function leads to decreased albumin and decreased clotting factor production → elevated PT/INR. Thrombocytopenia from splenomegaly is also common."},
+  {id:9,category:"Nursing",q:"The nurse is teaching a client with cirrhosis about dietary restrictions. Which statement by the nurse is CORRECT?",options:["A) 'Increase sodium to prevent muscle cramps'","B) 'Restrict fluid to 500 mL/day'","C) 'Limit sodium to 2g/day to manage ascites'","D) 'Avoid all protein to prevent encephalopathy'"],answer:2,rationale:"A 2g/day sodium restriction helps manage ascites by reducing fluid retention. Protein should be moderate (not eliminated) — adequate protein prevents muscle wasting."},
+  {id:10,category:"Pharmacology",q:"Propranolol (Inderal) is prescribed to a client with esophageal varices. What is the PURPOSE of this medication?",options:["A) To dissolve blood clots in varices","B) To reduce portal hypertension and prevent variceal bleeding","C) To treat hepatitis B infection","D) To improve liver synthetic function"],answer:1,rationale:"Propranolol is a non-selective beta-blocker used for primary/secondary prophylaxis of variceal bleeding. It reduces portal pressure by decreasing cardiac output and splanchnic vasoconstriction."},
+  {id:11,category:"Hepatitis",q:"A pregnant woman at 32 weeks is diagnosed with Hepatitis E. The nurse should be aware that this client is at highest risk for:",options:["A) Chronic liver disease","B) Fulminant hepatic failure and death","C) Transmission to sexual partners","D) Co-infection requiring Hepatitis B vaccine"],answer:1,rationale:"Hepatitis E has a mortality rate of 15-25% in pregnant women (especially 3rd trimester) due to fulminant hepatic failure. This is the highest-risk population for HEV."},
+  {id:12,category:"Cirrhosis",q:"A client with cirrhosis is found to have asterixis. The nurse should assess for which additional finding?",options:["A) Elevated serum potassium","B) Elevated serum ammonia","C) Decreased serum bilirubin","D) Decreased PT/INR"],answer:1,rationale:"Asterixis (flapping hand tremor) is a classic sign of hepatic encephalopathy caused by elevated ammonia. The liver fails to convert NH3 to urea, and ammonia crosses the blood-brain barrier."},
+  {id:13,category:"Complications",q:"The nurse is monitoring a patient post-paracentesis for large-volume ascites. Which finding would be MOST concerning?",options:["A) Urine output of 50 mL/hour","B) Blood pressure drop from 128/80 to 88/56","C) Mild abdominal discomfort at insertion site","D) Serum albumin 3.0 g/dL"],answer:1,rationale:"Post-paracentesis circulatory dysfunction can occur after large-volume paracentesis (>5L), causing significant hypotension and renal impairment. IV albumin infusion is standard practice after large-volume paracentesis."},
+  {id:14,category:"Nursing",q:"Which nursing intervention is MOST important for a patient with liver failure and coagulopathy?",options:["A) Encourage vigorous exercise","B) Use a soft toothbrush and electric razor","C) Administer aspirin for headache","D) Increase dietary vitamin C"],answer:1,rationale:"Coagulopathy from decreased clotting factor synthesis leads to high bleeding risk. A soft toothbrush prevents gingival bleeding, and an electric razor prevents lacerations. Aspirin is contraindicated."},
+  {id:15,category:"Labs",q:"A client's serum ammonia level is 95 mcg/dL (normal: 15-45). Which finding would the nurse expect on assessment?",options:["A) Bradycardia and hypertension","B) Peripheral neuropathy and tingling","C) Confusion, altered consciousness, asterixis","D) Jaundice and pruritus"],answer:2,rationale:"Elevated ammonia causes hepatic encephalopathy: confusion, disorientation, altered LOC, and asterixis (flapping tremor). Jaundice is from bilirubin, not ammonia."},
+  {id:16,category:"Hepatitis",q:"A healthcare worker sustains a needlestick from a known HBV+ patient. The worker completed the full vaccine series. What is APPROPRIATE?",options:["A) Begin HBIG and restart vaccine series","B) Test worker's anti-HBs; if adequate, no treatment needed","C) Start antiviral therapy immediately","D) Report exposure but take no prophylactic action"],answer:1,rationale:"If the exposed HCW has documented adequate anti-HBs levels from prior vaccination, no post-exposure prophylaxis is needed. If titer is inadequate or unknown, HBIG + vaccine booster is given within 24 hours."},
+  {id:17,category:"Pharmacology",q:"A client is receiving neomycin for hepatic encephalopathy. Which adverse effect requires the MOST monitoring?",options:["A) Hepatotoxicity","B) Nephrotoxicity and ototoxicity","C) Hypertension","D) Thrombocytopenia"],answer:1,rationale:"Neomycin (aminoglycoside antibiotic) reduces ammonia-producing gut bacteria. Its primary adverse effects are nephrotoxicity and ototoxicity. Lactulose is now preferred; neomycin is used as adjunct or alternative."},
+  {id:18,category:"Cirrhosis",q:"A client with portal hypertension develops dilated veins around the umbilicus. The nurse documents this as:",options:["A) Spider angiomata","B) Caput medusae","C) Palmar erythema","D) Dupuytren's contracture"],answer:1,rationale:"Caput medusae refers to the visible, dilated periumbilical veins caused by portal hypertension forcing blood through collateral veins. Spider angiomata and palmar erythema are also signs of cirrhosis."},
+  {id:19,category:"Nursing",q:"The nurse is educating a newly diagnosed Hepatitis C patient. Which statement by the patient indicates a need for further teaching?",options:["A) 'I should not donate blood'","B) 'I can spread this through casual contact like hugging'","C) 'My sexual partners should be tested'","D) 'I should avoid alcohol completely'"],answer:1,rationale:"Hepatitis C is bloodborne — NOT spread through casual contact (hugging, sharing utensils, etc.). It is transmitted via blood (IV drug use, transfusions, needlesticks)."},
+  {id:20,category:"Complications",q:"A patient with cirrhosis is being evaluated for TIPS. The nurse explains the PRIMARY purpose is to:",options:["A) Cure cirrhosis by bypassing the damaged liver","B) Reduce portal hypertension to prevent variceal bleeding","C) Improve liver synthetic function","D) Treat hepatocellular carcinoma"],answer:1,rationale:"TIPS creates a channel between the portal and hepatic veins to decompress portal hypertension, reducing risk of variceal bleeding and refractory ascites. It does NOT cure cirrhosis and may worsen encephalopathy."},
+  {id:21,category:"Labs",q:"Which finding BEST reflects hepatic synthetic function?",options:["A) Elevated ALT","B) Elevated GGT","C) Low serum albumin and elevated PT/INR","D) Elevated total bilirubin"],answer:2,rationale:"Albumin and clotting factors (reflected by PT/INR) are made by the liver. Low albumin + high PT/INR = impaired synthetic function. AST/ALT = damage markers; bilirubin = conjugation."},
+  {id:22,category:"Hepatitis",q:"A client with chronic Hepatitis B has HBeAg positive results. What does this INDICATE?",options:["A) The client has recovered from Hepatitis B","B) The client has active viral replication and is highly infectious","C) The client has developed immunity","D) The client has Hepatitis D co-infection"],answer:1,rationale:"HBeAg (e antigen) positivity indicates active viral replication with HIGH infectivity. HBsAg = infection present; HBeAg = high replication; Anti-HBe = low replication; Anti-HBs = immunity."},
+  {id:23,category:"Cirrhosis",q:"Which of the following is the MOST common cause of cirrhosis in the United States?",options:["A) Hepatitis A","B) Autoimmune hepatitis","C) NAFLD/NASH and alcohol use disorder","D) Hepatitis E"],answer:2,rationale:"NAFLD/NASH and alcohol use disorder are now the leading causes of cirrhosis in the US, surpassing hepatitis C as direct-acting antivirals have improved outcomes."},
+  {id:24,category:"Nursing",q:"A client with ascites is prescribed spironolactone. The nurse monitors for which PRIORITY adverse effect?",options:["A) Hypokalemia","B) Hyperkalemia","C) Hypernatremia","D) Hyponatremia from diuresis"],answer:1,rationale:"Spironolactone is a potassium-SPARING diuretic (aldosterone antagonist). The major risk is HYPERKALEMIA. Monitor potassium levels closely; often combined with furosemide to balance potassium."},
+  {id:25,category:"Pharmacology",q:"A nurse is preparing to administer Vitamin K to a patient with liver failure. What is the EXPECTED outcome?",options:["A) Decrease in serum ammonia","B) Improvement in PT/INR","C) Reduction in ascites","D) Decrease in bilirubin levels"],answer:1,rationale:"Vitamin K is required for synthesis of clotting factors II, VII, IX, X. In liver disease, Vitamin K deficiency leads to elevated PT/INR. Supplementation can improve coagulation if the liver has residual synthetic capacity."},
+  {id:26,category:"Complications",q:"A patient with cirrhosis develops oliguria, elevated creatinine, and low urinary sodium despite adequate volume. No intrinsic renal disease. This is MOST consistent with:",options:["A) Acute tubular necrosis","B) Prerenal azotemia","C) Hepatorenal syndrome","D) Glomerulonephritis"],answer:2,rationale:"Hepatorenal syndrome is renal failure in advanced liver disease — characterized by oliguria, elevated creatinine, very low urine sodium (<10 mEq/L), and no intrinsic renal disease. It has a poor prognosis."},
+  {id:27,category:"Labs",q:"A patient has jaundice, dark urine, and clay-colored stools. Which pattern is MOST likely?",options:["A) Elevated AST/ALT with normal bilirubin","B) Elevated ALP and direct bilirubin (conjugated hyperbilirubinemia)","C) Low albumin and elevated PT/INR only","D) Elevated indirect bilirubin only"],answer:1,rationale:"Clay-colored stools + dark urine + jaundice = obstructive/cholestatic pattern. ALP rises markedly; direct (conjugated) bilirubin rises because it cannot be excreted into bile."},
+  {id:28,category:"Hepatitis",q:"Which type of hepatitis can ONLY occur as a co-infection or superinfection with Hepatitis B?",options:["A) Hepatitis A","B) Hepatitis C","C) Hepatitis D","D) Hepatitis E"],answer:2,rationale:"Hepatitis D (delta virus) is a defective RNA virus that REQUIRES HBsAg (Hepatitis B) to replicate. It occurs as co-infection (simultaneous) or superinfection (D in chronic B carrier). HBV vaccination prevents HDV."},
+  {id:29,category:"Nursing",q:"While assessing a client with cirrhosis, the nurse measures abdominal girth 5 cm larger than yesterday. What is the PRIORITY nursing action?",options:["A) Increase the dose of furosemide","B) Notify the provider and document findings","C) Encourage the patient to ambulate","D) Restrict oral fluids immediately"],answer:1,rationale:"A 5 cm increase in abdominal girth in 24 hours indicates rapid ascites accumulation. The nurse should notify the provider — treatment decisions require a provider order."},
+  {id:30,category:"Cirrhosis",q:"Which finding is characteristic of CHRONIC liver disease caused by elevated estrogen from impaired hepatic metabolism?",options:["A) Ascites and edema","B) Spider angiomata and palmar erythema","C) Asterixis and confusion","D) Caput medusae"],answer:1,rationale:"Spider angiomata and palmar erythema result from elevated estrogen — normally metabolized by the liver. In cirrhosis, estrogen accumulates, causing cutaneous vasodilation. Classic stigmata of chronic liver disease."},
+  {id:31,category:"Pharmacology",q:"A client with acute variceal hemorrhage is started on octreotide. The mechanism of action is:",options:["A) Dissolves clots in the varices","B) Causes splanchnic vasoconstriction, reducing portal blood flow","C) Acts as a beta-blocker to reduce heart rate","D) Increases platelet aggregation"],answer:1,rationale:"Octreotide (somatostatin analogue) causes splanchnic vasoconstriction, reducing portal venous blood flow and pressure, which helps control acute variceal bleeding."},
+  {id:32,category:"Complications",q:"Diagnostic paracentesis shows ascitic WBC >250 neutrophils/mm³. What condition does this indicate?",options:["A) Malignant ascites","B) Spontaneous bacterial peritonitis (SBP)","C) Chylous ascites","D) Hepatorenal syndrome"],answer:1,rationale:"SBP is diagnosed when ascitic fluid PMN count >250 cells/mm³. IV cefotaxime or ceftriaxone is first-line treatment."},
+  {id:33,category:"Labs",q:"Alpha-fetoprotein (AFP) is elevated in a client with cirrhosis. This is MOST associated with:",options:["A) Acute hepatitis flare","B) Hepatocellular carcinoma (HCC)","C) Spontaneous bacterial peritonitis","D) Hepatic encephalopathy"],answer:1,rationale:"AFP is a tumor marker elevated in hepatocellular carcinoma (HCC). Clients with cirrhosis are screened with AFP + ultrasound every 6 months due to high HCC risk."},
+  {id:34,category:"Nursing",q:"A patient with liver cirrhosis sustains a laceration with prolonged bleeding. The PATHOPHYSIOLOGIC reason is:",options:["A) Thrombocytosis from liver disease","B) Decreased production of clotting factors by the liver","C) Excessive anticoagulation therapy","D) Vitamin B12 deficiency"],answer:1,rationale:"The liver produces most coagulation factors (I, II, V, VII, VIII, IX, X, XI). In cirrhosis, synthetic function is impaired → decreased clotting factors → prolonged PT/INR → coagulopathy."},
+  {id:35,category:"Hepatitis",q:"A client says 'I only have Hepatitis A' when the nurse uses standard precautions. The nurse's BEST response is:",options:["A) 'Hepatitis A is bloodborne so this is necessary'","B) 'Standard precautions are used with ALL patients, regardless of diagnosis'","C) 'I am protecting you from me'","D) 'Hospital policy requires it for hepatitis patients only'"],answer:1,rationale:"Standard precautions apply to ALL patients regardless of diagnosis, because bloodborne pathogens can be present even without known diagnosis."},
+  {id:36,category:"Cirrhosis",q:"A patient just had a TIPS procedure. Which complication should the nurse monitor for MOST closely?",options:["A) Hypertension and tachycardia","B) Worsening hepatic encephalopathy","C) Pulmonary embolism","D) Acute kidney injury from dye"],answer:1,rationale:"TIPS bypasses liver filtering → ammonia bypasses the liver → worsening hepatic encephalopathy is the most common and significant complication. Mental status changes must be closely monitored."},
+  {id:37,category:"Pharmacology",q:"The nurse notes a client with liver disease is prescribed acetaminophen for mild pain. What is APPROPRIATE?",options:["A) Administer as prescribed, it is liver-safe","B) Contact the provider — acetaminophen is hepatotoxic","C) Substitute ibuprofen instead","D) Administer half the dose"],answer:1,rationale:"Acetaminophen is metabolized by the liver → toxic metabolite NAPQI. In liver disease, this pathway → hepatotoxicity at lower doses. Avoid or use lowest dose <2g/day with provider guidance. NSAIDs also contraindicated."},
+  {id:38,category:"Labs",q:"A client has indirect (unconjugated) hyperbilirubinemia. The nurse should assess for:",options:["A) Clay-colored stools","B) Hemolytic anemia or impaired hepatic uptake","C) Biliary obstruction","D) Pancreatic cancer"],answer:1,rationale:"Elevated INDIRECT bilirubin = problem before conjugation (pre-hepatic): hemolysis, ineffective erythropoiesis, or impaired hepatic uptake. Elevated DIRECT bilirubin = post-conjugation obstruction."},
+  {id:39,category:"Nursing",q:"A client with end-stage liver disease is being evaluated for transplant. The MELD score is used to:",options:["A) Grade the severity of hepatic encephalopathy","B) Prioritize transplant listing based on 90-day mortality risk","C) Determine the cause of cirrhosis","D) Assess post-transplant rejection risk"],answer:1,rationale:"MELD uses INR, creatinine, and bilirubin to predict 90-day mortality risk without transplant. Higher MELD = higher priority on the transplant waitlist."},
+  {id:40,category:"Hepatitis",q:"Which patient is at HIGHEST risk for developing chronic Hepatitis B?",options:["A) An adult infected through sexual contact","B) A neonate born to an HBsAg-positive mother","C) A 40-year-old who received a needlestick","D) A patient who received contaminated blood"],answer:1,rationale:"90% of neonates exposed to HBV perinatally develop chronic infection (immature immune system). This drops to ~30% in children under 5, and only 5-10% in adults. Neonates should receive HBIG + vaccine within 12 hours of birth."},
+  {id:41,category:"Complications",q:"Endoscopy shows grade III esophageal varices but no active bleeding. Which intervention is MOST appropriate?",options:["A) Emergent variceal ligation","B) Primary prophylaxis with non-selective beta-blocker or band ligation","C) TIPS procedure immediately","D) Start IV octreotide"],answer:1,rationale:"Primary prophylaxis for large varices (no bleeding yet) includes non-selective beta-blockers (propranolol/nadolol) OR endoscopic band ligation (EBL). TIPS and octreotide are for active or recent bleeding."},
+  {id:42,category:"Nursing",q:"A client with hepatic encephalopathy is disoriented and attempting to climb out of bed. PRIORITY is to:",options:["A) Apply full leather restraints","B) Ensure patient safety and administer ordered lactulose","C) Call a family meeting","D) Place the patient in isolation"],answer:1,rationale:"Safety is priority — the patient is at fall risk. Reorientation, side rails up, and close monitoring are essential. Lactulose treats the underlying cause. Restraints should be a last resort."},
+  {id:43,category:"Labs",q:"A client has PT of 22 seconds (normal 11-13 sec). Which nursing intervention is MOST appropriate?",options:["A) Prepare the patient for dialysis","B) Implement bleeding precautions and notify provider","C) Administer heparin as prescribed","D) Encourage ambulation to prevent DVT"],answer:1,rationale:"Prolonged PT indicates coagulopathy — implement bleeding precautions (soft toothbrush, electric razor, pad side rails). Report to provider for possible Vitamin K or FFP."},
+  {id:44,category:"Pharmacology",q:"Which medication for Hepatitis C directly inhibits viral replication and has a >95% cure rate?",options:["A) Interferon alpha","B) Ribavirin alone","C) Direct-acting antivirals (DAAs) such as ledipasvir/sofosbuvir","D) Lamivudine"],answer:2,rationale:"Direct-acting antivirals (DAAs) like Harvoni target specific viral proteins, achieving SVR (sustained virologic response = cure) in >95% of patients with few side effects. Replaced interferon-based therapy."},
+  {id:45,category:"Cirrhosis",q:"The nurse notes gynecomastia and testicular atrophy in a male patient with liver disease. These findings are caused by:",options:["A) Decreased testosterone from adrenal suppression","B) Impaired hepatic metabolism of estrogen leading to excess estrogen","C) Elevated FSH and LH levels","D) Zinc deficiency from poor nutrition"],answer:1,rationale:"The liver normally metabolizes estrogen. In cirrhosis, estrogen accumulates → feminization in males (gynecomastia, testicular atrophy, spider angiomata, palmar erythema, loss of body hair)."},
+  {id:46,category:"Nursing",q:"A nurse is caring for a patient with hepatic encephalopathy. Which dietary instruction is CORRECT?",options:["A) 'Eat a high-protein diet to build muscle'","B) 'Avoid all protein to prevent ammonia production'","C) 'Eat moderate amounts of plant-based and dairy proteins; limit red meat'","D) 'Only drink liquids to reduce gut ammonia'"],answer:2,rationale:"Modern guidelines recommend moderate protein (1.2-1.5g/kg/day) — NOT protein restriction. Plant-based and dairy proteins produce less ammonia than red meat. Adequate protein prevents muscle wasting."},
+  {id:47,category:"Complications",q:"A patient with cirrhosis develops dyspnea with low O2 saturation that IMPROVES when lying flat. MOST consistent with:",options:["A) Pulmonary embolism","B) Hepatopulmonary syndrome","C) Pleural effusion","D) Pneumonia"],answer:1,rationale:"Hepatopulmonary syndrome causes platypnea (dyspnea worse upright) and orthodeoxia (O2 sat drops upright, improves supine) due to intrapulmonary vascular dilations causing right-to-left shunts."},
+  {id:48,category:"Labs",q:"Which value is the MOST specific indicator for alcohol-related liver disease?",options:["A) ALT elevation","B) AST:ALT ratio >2:1 and elevated GGT","C) Elevated ALP","D) Elevated AFP"],answer:1,rationale:"In alcoholic liver disease, AST:ALT ratio >2:1 (often >3:1) is characteristic because alcohol preferentially damages mitochondria (source of AST) and depletes B6 needed for ALT synthesis. GGT is also markedly elevated."},
+  {id:49,category:"Nursing",q:"A nurse is preparing a client for a liver biopsy. Which pre-procedure assessment is PRIORITY?",options:["A) Blood glucose level","B) Coagulation studies (PT/INR, platelets)","C) Liver function tests","D) Abdominal X-ray"],answer:1,rationale:"Liver biopsy carries significant bleeding risk. PT/INR and platelet count MUST be assessed before the procedure. If INR >1.5 or platelets <50,000, biopsy may be contraindicated or require correction first."},
+  {id:50,category:"Cirrhosis",q:"Which intervention provides the LONGEST-LASTING relief of ascites in end-stage liver disease?",options:["A) Repeated large-volume paracentesis","B) Sodium restriction alone","C) Liver transplantation","D) TIPS procedure"],answer:2,rationale:"Liver transplantation is the only definitive treatment for end-stage liver disease and resolves ascites long-term by restoring hepatic function. TIPS provides relief but doesn't cure the disease."}
+];
+
+const drugs = [
+  {name:"Lactulose",cls:"Osmotic Laxative",use:"Hepatic encephalopathy",moa:"Acidifies colon → traps NH₃ as NH₄⁺ → excreted in stool",nursing:"Goal: 2-3 soft stools/day. Monitor for dehydration, electrolyte imbalance. Adjust dose accordingly.",alert:"Overuse → diarrhea / hyponatremia"},
+  {name:"Rifaximin",cls:"Non-absorbable Antibiotic",use:"Hepatic encephalopathy (maintenance)",moa:"Suppresses ammonia-producing gut bacteria",nursing:"Taken with lactulose for refractory HE. Minimal systemic absorption.",alert:"C. diff risk with prolonged use"},
+  {name:"Spironolactone",cls:"Potassium-Sparing Diuretic",use:"Ascites, portal hypertension",moa:"Aldosterone antagonist → ↑Na excretion, ↑K retention",nursing:"Monitor K⁺ (hyperkalemia risk). Often combined with furosemide 100:40 ratio.",alert:"⚠️ HYPERKALEMIA — check K⁺ regularly"},
+  {name:"Furosemide",cls:"Loop Diuretic",use:"Ascites (combination with spironolactone)",moa:"Inhibits Na-K-2Cl cotransporter in loop of Henle",nursing:"Monitor K⁺ (hypokalemia risk). Daily weights. I&O.",alert:"Hypokalemia, ototoxicity at high doses"},
+  {name:"Propranolol / Nadolol",cls:"Non-selective Beta-Blocker",use:"Variceal hemorrhage prophylaxis",moa:"↓ cardiac output + splanchnic vasoconstriction → ↓ portal pressure",nursing:"Check HR before giving (hold <60 bpm). Assess for bronchospasm (CI in asthma).",alert:"Contraindicated in asthma/COPD"},
+  {name:"Octreotide",cls:"Somatostatin Analogue",use:"Acute variceal hemorrhage",moa:"Splanchnic vasoconstriction → ↓ portal blood flow",nursing:"IV infusion. Used with endoscopic band ligation.",alert:"Monitor for hypoglycemia or hyperglycemia"},
+  {name:"Vitamin K",cls:"Fat-Soluble Vitamin",use:"Coagulopathy in liver disease",moa:"Cofactor for clotting factors II, VII, IX, X synthesis",nursing:"Give IV slowly (anaphylaxis risk) or SQ. Monitor PT/INR after administration.",alert:"IV push can cause anaphylaxis — give slowly"},
+  {name:"Cefotaxime / Ceftriaxone",cls:"3rd-Gen Cephalosporin",use:"Spontaneous Bacterial Peritonitis (SBP)",moa:"Inhibits bacterial cell wall synthesis (gram-negative coverage)",nursing:"Start ASAP after diagnostic paracentesis confirms SBP. Monitor renal function.",alert:"Add albumin infusion to prevent hepatorenal syndrome"},
+  {name:"Sofosbuvir / Ledipasvir (Harvoni)",cls:"Direct-Acting Antiviral (DAA)",use:"Chronic Hepatitis C",moa:"Inhibits NS5B polymerase and NS5A protein → blocks HCV replication",nursing:"Check for drug interactions. SVR (cure) achieved in >95%. Monitor liver function.",alert:"Contraindicated with rifampin; check drug interactions"},
+  {name:"Tenofovir / Entecavir",cls:"Antiviral (Nucleoside/Nucleotide)",use:"Chronic Hepatitis B",moa:"Inhibits HBV DNA polymerase → suppresses viral replication",nursing:"Long-term therapy often required. Monitor renal function with tenofovir. Check HBV DNA.",alert:"Do NOT abruptly stop — hepatitis flare risk"}
+];
+
+const catColors = {Hepatitis:"#e74c3c",Labs:"#3498db",Cirrhosis:"#e67e22",Nursing:"#27ae60",Pharmacology:"#9b59b6",Complications:"#c0392b"};
+const categories = ["All",...[...new Set(questions.map(q=>q.category))]];
+
+let selectedCat = "All";
+let currentQ = 0, score = 0, selected = null, answered = [];
+let filteredQs = [...questions];
+
+// BUILD BRANCHES
+function buildBranches() {
+  const grid = document.getElementById("branches");
+  branches.forEach(b => {
+    const card = document.createElement("div");
+    card.className = "branch-card";
+    card.style.borderLeftColor = b.color;
+    card.innerHTML = `
+      <div class="branch-header">
+        <div class="left">
+          <span class="branch-icon">${b.icon}</span>
+          <span class="branch-label" style="color:${b.color}">${b.label}</span>
+        </div>
+        <span class="branch-arrow" style="color:${b.color}" id="arr-${b.id}">▸</span>
+      </div>
+      <ul class="branch-items" id="items-${b.id}" style="display:none">
+        ${b.items.map(i=>`<li><span class="dot" style="color:${b.color}">◆</span>${i}</li>`).join("")}
+      </ul>`;
+    card.onclick = () => {
+      const ul = document.getElementById("items-"+b.id);
+      const arr = document.getElementById("arr-"+b.id);
+      const open = ul.style.display !== "none";
+      ul.style.display = open ? "none" : "block";
+      arr.textContent = open ? "▸" : "▾";
+      card.style.background = open ? "rgba(255,255,255,0.03)" : `${b.color}11`;
+      card.style.borderColor = open ? "rgba(255,255,255,0.1)" : b.color;
+      card.style.boxShadow = open ? "none" : `0 4px 20px ${b.color}33`;
+    };
+    grid.appendChild(card);
+  });
+}
+
+// BUILD CAT FILTERS
+function buildFilters() {
+  const cf = document.getElementById("cat-filters");
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat === "All" ? " active" : "");
+    btn.style.background = cat === "All" ? "#8b1a1a" : "rgba(255,255,255,0.07)";
+    const count = cat === "All" ? questions.length : questions.filter(q=>q.category===cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      selectedCat = cat;
+      document.querySelectorAll(".cat-btn").forEach(b => {
+        b.classList.remove("active");
+        b.style.background = "rgba(255,255,255,0.07)";
+        b.style.color = "#a09070";
+      });
+      btn.classList.add("active");
+      btn.style.background = catColors[cat] || "#8b1a1a";
+      btn.style.color = "#fff";
+      filteredQs = cat === "All" ? [...questions] : questions.filter(q=>q.category===cat);
+      document.getElementById("q-count").textContent = filteredQs.length;
+    };
+    cf.appendChild(btn);
+  });
+}
+
+// BUILD DRUGS
+function buildDrugs() {
+  const grid = document.getElementById("drugs-grid");
+  drugs.forEach(d => {
+    grid.innerHTML += `
+      <div class="drug-card">
+        <div class="drug-top">
+          <div>
+            <div class="drug-name">${d.name}</div>
+            <div class="drug-class">${d.cls.toUpperCase()}</div>
+          </div>
+          <div class="drug-use-badge">${d.use}</div>
+        </div>
+        <div class="drug-moa"><span>MOA: </span>${d.moa}</div>
+        <div class="drug-nursing"><span>Nursing: </span>${d.nursing}</div>
+        <div class="drug-alert">⚠️ ${d.alert}</div>
+      </div>`;
+  });
+}
+
+function showTab(tab) {
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById(tab+"-panel").classList.add("active");
+  document.querySelectorAll(".tab-btn")[["map","quiz","drugs"].indexOf(tab)].classList.add("active");
+}
+
+function startQuiz() {
+  currentQ = 0; score = 0; selected = null; answered = [];
+  document.getElementById("quiz-start-screen").style.display = "none";
+  document.getElementById("quiz-results-screen").style.display = "none";
+  document.getElementById("quiz-question-screen").style.display = "block";
+  renderQ();
+}
+
+function renderQ() {
+  const q = filteredQs[currentQ];
+  document.getElementById("q-num-label").textContent = `Question ${currentQ+1} of ${filteredQs.length}`;
+  const badge = document.getElementById("q-cat-badge");
+  badge.textContent = q.category.toUpperCase();
+  badge.style.background = `${catColors[q.category]||"#8b1a1a"}33`;
+  badge.style.border = `1px solid ${catColors[q.category]||"#8b1a1a"}`;
+  badge.style.color = catColors[q.category] || "#f5c842";
+  document.getElementById("progress-fill").style.width = `${(currentQ/filteredQs.length)*100}%`;
+  document.getElementById("q-text").textContent = q.q;
+  const opts = document.getElementById("options");
+  opts.innerHTML = "";
+  q.options.forEach((opt,idx) => {
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.textContent = opt;
+    btn.onclick = () => handleAnswer(idx);
+    opts.appendChild(btn);
+  });
+  document.getElementById("rationale-box").style.display = "none";
+  selected = null;
+}
+
+function handleAnswer(idx) {
+  if (selected !== null) return;
+  selected = idx;
+  const q = filteredQs[currentQ];
+  const correct = idx === q.answer;
+  if (correct) score++;
+  answered.push({qIdx:currentQ,selected:idx,correct});
+  const btns = document.querySelectorAll(".opt-btn");
+  btns.forEach((btn,i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add("correct");
+    else if (i === idx && !correct) btn.classList.add("wrong");
+  });
+  document.getElementById("rationale-text").textContent = q.rationale;
+  const nb = document.getElementById("next-btn");
+  nb.textContent = currentQ+1 >= filteredQs.length ? "See Results →" : "Next Question →";
+  nb.style.background = currentQ+1 >= filteredQs.length ? "#27ae60" : "#8b1a1a";
+  document.getElementById("rationale-box").style.display = "block";
+}
+
+function nextQ() {
+  if (currentQ+1 >= filteredQs.length) { showResults(); return; }
+  currentQ++;
+  renderQ();
+}
+
+function showResults() {
+  document.getElementById("quiz-question-screen").style.display = "none";
+  document.getElementById("quiz-results-screen").style.display = "block";
+  const pct = score/filteredQs.length;
+  document.getElementById("trophy").textContent = pct >= 0.8 ? "🏆" : pct >= 0.6 ? "📚" : "💪";
+  document.getElementById("big-score").textContent = `${score}/${filteredQs.length}`;
+  document.getElementById("big-score").style.color = pct >= 0.8 ? "#27ae60" : "#e67e22";
+  document.getElementById("pct-score").textContent = `${Math.round(pct*100)}% Correct`;
+  document.getElementById("feedback").textContent = pct >= 0.8 ? "Excellent! NCLEX-ready on this topic." : pct >= 0.6 ? "Good progress — review missed concepts." : "Keep studying — focus on weak areas.";
+  document.getElementById("feedback").style.color = pct >= 0.8 ? "#7dcea0" : "#e57373";
+  const missed = answered.filter(a=>!a.correct);
+  const ms = document.getElementById("missed-section");
+  if (missed.length > 0) {
+    ms.innerHTML = `<h3>❌ MISSED QUESTIONS — REVIEW</h3>`;
+    missed.forEach(a => {
+      const q = filteredQs[a.qIdx];
+      ms.innerHTML += `<div class="missed-item">
+        <div class="missed-q">${q.q}</div>
+        <div class="missed-yours">Your answer: ${q.options[a.selected]}</div>
+        <div class="missed-correct">✓ Correct: ${q.options[q.answer]}</div>
+        <div class="missed-rat">${q.rationale}</div>
+      </div>`;
+    });
+  } else { ms.innerHTML = ""; }
+}
+
+function backToStart() {
+  document.getElementById("quiz-results-screen").style.display = "none";
+  document.getElementById("quiz-question-screen").style.display = "none";
+  document.getElementById("quiz-start-screen").style.display = "block";
+}
+
+buildBranches();
+buildFilters();
+buildDrugs();
+</script>
+</body>
+</html>
